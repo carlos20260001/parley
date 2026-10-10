@@ -35,8 +35,15 @@ import { join } from 'node:path';
 
 import { FontRef } from '@egui-node/skrifa-ts';
 
-/** The generic family names CSS defines, plus fontique's aliases. */
-export type GenericFamily =
+/**
+ * The generic family names CSS defines.
+ *
+ * A superset of `style.ts`'s `GenericFamily`, which only lists the families a
+ * style can *request*. fontique also has to recognise the `ui-*` aliases and
+ * CSS-wide keywords because it maps them, so it carries the full set under
+ * its own name.
+ */
+export type CssGenericFamily =
   | 'serif'
   | 'sans-serif'
   | 'monospace'
@@ -423,13 +430,13 @@ export interface FamilyInfo {
 }
 
 /** The generic families to substitute when CSS asks for one. */
-export type GenericFamilyMap = Partial<Record<GenericFamily, string>>;
+export type CssGenericFamilyMap = Partial<Record<CssGenericFamily, string>>;
 
 /** The fallbacks to consult when nothing else matches a script. */
 export type FallbackMap = Partial<Record<FallbackKey, string[]>>;
 
 /** The default generic families, mirroring fontique's built-ins. */
-export const DEFAULT_GENERIC_FAMILIES: GenericFamilyMap = {
+export const DEFAULT_GENERIC_FAMILIES: CssGenericFamilyMap = {
   serif: 'serif',
   'sans-serif': 'sans-serif',
   monospace: 'monospace',
@@ -448,7 +455,7 @@ export const DEFAULT_GENERIC_FAMILIES: GenericFamilyMap = {
 /** Stores fonts and answers queries, as `fontique::Collection`. */
 export class Collection {
   private readonly families = new Map<string, FontInfo[]>();
-  private readonly generic: GenericFamilyMap = { ...DEFAULT_GENERIC_FAMILIES };
+  private readonly generic: CssGenericFamilyMap = { ...DEFAULT_GENERIC_FAMILIES };
   private fallbacks: FallbackMap = {};
 
   constructor(_options: CollectionOptions = {}) {}
@@ -490,12 +497,12 @@ export class Collection {
   }
 
   /** The configured generic family substitutions. */
-  genericFamilyMap(): GenericFamilyMap {
+  genericFamilyMap(): CssGenericFamilyMap {
     return { ...this.generic };
   }
 
   /** Sets one generic family substitution. */
-  setGenericFamily(which: GenericFamily, family: string): void {
+  setGenericFamily(which: CssGenericFamily, family: string): void {
     this.generic[which] = family;
   }
 
@@ -650,7 +657,7 @@ export class Query {
 }
 
 /** Whether a name is one of CSS's generic family keywords. */
-export function isGenericFamily(name: string): name is GenericFamily {
+export function isGenericFamily(name: string): name is CssGenericFamily {
   return name in DEFAULT_GENERIC_FAMILIES;
 }
 
