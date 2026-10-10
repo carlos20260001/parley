@@ -17,3 +17,4 @@ export * from './layout.js';
 export * from './layout_context.js';
 export * from './bidi.js';
 export * from './font_context.js';
+export * from './fontique.js';
