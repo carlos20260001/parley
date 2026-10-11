@@ -14,14 +14,14 @@ import {
   scanDirectory,
   widthClassToRatio,
   type FontInfo,
-} from './fontique.js';
+} from './mod.js';
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const FIXTURES = join(HERE, '..', 'testdata');
+const FIXTURES = join(HERE, '..', '..', 'testdata');
 
 const ROBOTO = readFileSync(join(FIXTURES, 'Roboto-Regular.ttf'));
 const SSP = readFileSync(join(FIXTURES, 'SourceSansPro-Regular.otf'));

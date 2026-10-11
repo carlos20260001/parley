@@ -8,44 +8,14 @@
  * The port stores one flat glyph array per line, which is what a renderer needs
  * and avoids an extra indirection — the cluster boundaries live on the glyphs
  * via their `cluster` field, so `Cluster[]` can be derived rather than stored.
+ *
+ * A `Layout` also carries the paragraph's base bidi level, exposed as
+ * [`is_rtl`](Layout::is_rtl) to mirror `parley::Layout::is_rtl`; it is what
+ * decides which edge text aligns to.
  */
 
 import type { Glyph } from './cluster.js';
-import { buildClusters, type Cluster } from './cluster.js';
-
-/** The reason a line ended, for the caller's diagnostics. */
-export enum LineEndKind {
-  /** A hard break in the text. */
-  HardBreak = 'hardBreak',
-  /** The line was filled to the requested width. */
-  Width = 'width',
-  /** The last line. */
-  End = 'end',
-}
-
-/** A line of laid-out text. */
-export interface Line {
-  /** Glyphs in reading order, positioned relative to the line origin. */
-  readonly glyphs: Glyph[];
-  /** Clusters in reading order. */
-  readonly clusters: Cluster[];
-  /** Distance from the line box's top to the text run's ascent. */
-  readonly baseline: number;
-  /** Total line height in pixels. */
-  readonly height: number;
-  /** Advance width of the text, ignoring trailing spaces. */
-  readonly width: number;
-  /** Advance width including trailing spaces. */
-  readonly trailingWidth: number;
-  /** Where the line ended, and why. */
-  readonly kind: LineEndKind;
-}
-
-/** The overall text box. */
-export interface LineMetrics {
-  readonly minCoordinate: number;
-  readonly maxCoordinate: number;
-}
+import type { Line } from './line.js';
 
 /** A laid-out paragraph. */
 export class Layout {
@@ -55,14 +25,26 @@ export class Layout {
   private _maxCoordinate = 0;
   private _minCoordinate = 0;
   private _text: string;
+  private _baseLevel = 0;
 
-  constructor(text = '') {
+  constructor(text = '', baseLevel = 0) {
     this._text = text;
+    this._baseLevel = baseLevel;
   }
 
   /** The text that was laid out. */
   get text(): string {
     return this._text;
+  }
+
+  /** The paragraph's base bidi level; odd means the paragraph is right-to-left. */
+  get baseLevel(): number {
+    return this._baseLevel;
+  }
+
+  /** Whether the paragraph's base direction is right-to-left. */
+  is_rtl(): boolean {
+    return this._baseLevel % 2 === 1;
   }
 
   /** The advance width of the widest line. */
@@ -89,7 +71,7 @@ export class Layout {
     return this.lineList;
   }
 
-  /** Every glyph in the layout, in line then reading order. */
+  /** Every glyph in the layout, in line then visual order. */
   allGlyphs(): Glyph[] {
     const out: Glyph[] = [];
     for (const l of this.lineList) out.push(...l.glyphs);
@@ -125,19 +107,9 @@ export class Layout {
   setText(text: string): void {
     this._text = text;
   }
-}
 
-/** Builds a `Line` from positioned glyphs, deriving its metrics. */
-export function makeLine(
-  glyphs: Glyph[],
-  baseline: number,
-  height: number,
-  kind: LineEndKind,
-): Line {
-  const clusters = buildClusters(glyphs);
-  const trailing = clusters.reduce((n, c) => (c.isWhitespace ? n + c.advance : n), 0);
-  let width = glyphs.reduce((n, g) => n + g.advance, 0);
-  // Trailing whitespace never contributes to a line's measured width.
-  width -= trailing;
-  return { glyphs, clusters, baseline, height, width, trailingWidth: width + trailing, kind };
+  /** Sets the paragraph base bidi level after the fact. */
+  setBaseLevel(level: number): void {
+    this._baseLevel = level;
+  }
 }

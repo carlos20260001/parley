@@ -11,8 +11,8 @@
  * mapping has to happen per cluster.
  */
 
-import type { RegisteredFont } from './font_context.js';
-import type { Brush } from './attrs.js';
+import type { RegisteredFont } from '../font.js';
+import type { Brush } from '../style/mod.js';
 
 /** One glyph, positioned relative to the start of its line. */
 export interface Glyph {
@@ -66,6 +66,8 @@ export interface Run {
   /** Unicode script tag of the run, for HarfBuzz. */
   readonly script: string;
   readonly direction: 'ltr' | 'rtl';
+  /** Embedding level of the run: even is left-to-right, odd is right-to-left. */
+  readonly bidiLevel: number;
 }
 
 /**

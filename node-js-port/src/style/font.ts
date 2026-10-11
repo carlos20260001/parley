@@ -1,13 +1,17 @@
+// Copyright 2021 the Parley Authors
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 /**
- * Text style properties, replacing `parley::style` and the `attributed_text`
- * crate it is built on.
+ * The font-selection newtypes, replacing `parley::style::font`.
  *
- * Upstream is a family of newtypes plus a `StyleProperty` enum. In a port the
- * natural grouping is a single module of classes with `#[derive(Default)]`
- * equivalents expressed as constants, so the API reads the same at call sites.
+ * Upstream this module holds `FontFamily`, `FontFamilyName`, `FontFeature`,
+ * `FontFeatures`, `FontStyle`, `FontVariation`, `FontVariations`, `FontWeight`,
+ * `FontWidth` and `GenericFamily`. The port keeps the selection-relevant
+ * subset: a family, a weight, a width and a style, which is what
+ * `FontContext::faceFor` and fontique's matching compare.
  *
- * The port deliberately keeps the *names* identical to upstream: `FontWeight`,
- * `FontFamily`, `LineHeight`, `TextWrapMode`, `OverflowWrap`, `Alignment`.
+ * These live here rather than in `attributed_text` because upstream they are
+ * part of `parley::style`, which `attributed_text` builds on.
  */
 
 /**
@@ -27,6 +31,13 @@ export type GenericFamily =
   | 'emoji'
   | 'math';
 
+/**
+ * A font family: either a specific name or a generic CSS family.
+ *
+ * Upstream returns `FontFamily::Specific` from `named` and
+ * `FontFamily::Generic` from the static constructors; the port carries both
+ * possibilities in the same object so a caller can read whichever it needs.
+ */
 export class FontFamily {
   readonly generic: GenericFamily | undefined;
   readonly name: string | undefined;
@@ -125,76 +136,4 @@ export class FontStyle {
   static fromCssKeyword(kw: string): FontStyle {
     return kw === 'italic' ? FontStyle.ITALIC : FontStyle.NORMAL;
   }
-}
-
-/** How the height of a line box is derived. */
-export type LineHeight_ =
-  | { readonly kind: 'metrics-relative'; readonly value: number }
-  | { readonly kind: 'font-size-relative'; readonly value: number }
-  | { readonly kind: 'absolute'; readonly value: number };
-
-export class LineHeight {
-  private constructor(
-    readonly kind: 'metrics-relative' | 'font-size-relative' | 'absolute',
-    readonly value: number,
-  ) {}
-
-  static metricsRelative(v: number): LineHeight {
-    return new LineHeight('metrics-relative', v);
-  }
-  static fontSizeRelative(v: number): LineHeight {
-    return new LineHeight('font-size-relative', v);
-  }
-  static absolute(v: number): LineHeight {
-    return new LineHeight('absolute', v);
-  }
-
-  /** Upstream default: 1.2x the font size. */
-  static readonly DEFAULT = LineHeight.fontSizeRelative(1.2);
-}
-
-export enum Alignment {
-  Start = 'start',
-  End = 'end',
-  Left = 'left',
-  Right = 'right',
-  Center = 'center',
-  Justify = 'justify',
-}
-
-export enum TextWrapMode {
-  Wrap = 'wrap',
-  NoWrap = 'noWrap',
-}
-
-export enum OverflowWrap {
-  Normal = 'normal',
-  Anywhere = 'anywhere',
-  BreakWord = 'breakWord',
-}
-
-export enum WordBreak {
-  Normal = 'normal',
-  BreakAll = 'breakAll',
-  KeepAll = 'keepAll',
-}
-
-/**
- * Unicode line-breaking overrides.
- *
- * Only `Auto` and an explicit break hint exist in the port; upstream adds
- * `LineBreak(Auto | Strict | Loose | Anywhere | ...)` plus `WordBreak`.
- */
-export enum LineBreak {
-  Auto = 'auto',
-  Strict = 'strict',
-  Loose = 'loose',
-  Anywhere = 'anywhere',
-}
-
-export enum WhiteSpaceCollapse {
-  Collapse = 'collapse',
-  Preserve = 'preserve',
-  PreserveBreaks = 'preserve-breaks',
-  BreakSpaces = 'break-spaces',
 }

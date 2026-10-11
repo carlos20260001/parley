@@ -17,9 +17,8 @@
  */
 
 import { FontRef } from '@egui-node/skrifa-ts';
-import { FontFamily, FontStyle, FontWeight, FontWidth } from './style.js';
-import type { Brush } from './attrs.js';
-import { createFontFace, loadShaper, type ShaperFace, type ShapedGlyph } from './shaper.js';
+import { FontFamily, FontStyle, FontWeight, FontWidth, type Brush } from './style/mod.js';
+import { createFontFace, loadShaper, type ShaperFace, type ShapedGlyph } from './engine/shape/shaper.js';
 
 /** A font the context can lay text out with. */
 export interface RegisteredFont {

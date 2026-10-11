@@ -38,7 +38,7 @@
  * Arabic, Hebrew, CJK, Thai and Lao text is unaffected.
  */
 
-import { scriptOf } from './unicode.js';
+import { scriptOf } from '../unicode.js';
 
 /** The UAX #14 line break classes the port derives. */
 export type LineBreakClass =

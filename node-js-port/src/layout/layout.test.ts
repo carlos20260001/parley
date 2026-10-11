@@ -2,12 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { readFileSync } from 'node:fs';
 
-import { FontContext } from './font_context.js';
-import { LayoutContext, RangedBuilder } from './layout_context.js';
-import { Alignment, FontFamily, FontStyle, FontWeight, FontWidth, OverflowWrap } from './style.js';
+import { FontContext } from '../font.js';
+import { LayoutContext } from '../context.js';
+import { RangedBuilder } from '../builder.js';
+import { Alignment, FontFamily, FontStyle, FontWeight, FontWidth, OverflowWrap } from '../style/mod.js';
 
 /** A real font with a full Latin range, used as the single test font. */
-const FONT = readFileSync(new URL('../testdata/SourceSansPro-Regular.otf', import.meta.url));
+const FONT = readFileSync(new URL('../../testdata/SourceSansPro-Regular.otf', import.meta.url));
 
 const TEXT = 'Afffij';
 
